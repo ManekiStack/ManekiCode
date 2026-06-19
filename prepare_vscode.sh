@@ -186,6 +186,47 @@ done
 
 set -x
 
+if [[ "${DISABLE_UPDATE}" == "yes" ]]; then
+  mv ../patches-manekicode/00-update-disable.patch.yet ../patches/00-update-disable.patch
+fi
+
+for file in ../patches-manekicode/*.json; do
+  if [[ -f "${file}" ]]; then
+    apply_actions "${file}"
+  fi
+done
+
+for file in ../patches-manekicode/*.patch; do
+  if [[ -f "${file}" ]]; then
+    apply_patch "${file}"
+  fi
+done
+
+if [[ "${VSCODE_QUALITY}" == "insider" ]]; then
+  for file in ../patches-manekicode/insider/*.patch; do
+    if [[ -f "${file}" ]]; then
+      apply_patch "${file}"
+    fi
+  done
+fi
+
+if [[ -d "../patches-manekicode/${OS_NAME}/" ]]; then
+  for file in "../patches-manekicode/${OS_NAME}/"*.patch; do
+    if [[ -f "${file}" ]]; then
+      apply_patch "${file}"
+    fi
+  done
+fi
+
+for file in ../patches-manekicode/user/*.patch; do
+  if [[ -f "${file}" ]]; then
+    apply_patch "${file}"
+  fi
+done
+# }}}
+
+set -x
+
 # {{{ install dependencies
 export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
