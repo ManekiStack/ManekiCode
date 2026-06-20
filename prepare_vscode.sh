@@ -336,3 +336,5 @@ elif [[ "${OS_NAME}" == "windows" ]]; then
 fi
 
 cd ..
+
+./override_vscode.sh
