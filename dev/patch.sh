@@ -11,6 +11,8 @@ normalize_file() {
 
   if [[ "${FILE}" == patches/* ]]; then
     FILE="../${FILE}"
+  elif [[ "${FILE}" == patches-manekicode/* ]]; then
+    FILE="../${FILE}"
   else
     FILE="../patches/${FILE}"
   fi

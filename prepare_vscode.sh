@@ -187,7 +187,7 @@ done
 set -x
 
 if [[ "${DISABLE_UPDATE}" == "yes" ]]; then
-  mv ../patches-manekicode/00-update-disable.patch.yet ../patches/00-update-disable.patch
+  mv ../patches-manekicode/00-update-disable.patch.yet ../patches-manekicode/00-update-disable.patch
 fi
 
 for file in ../patches-manekicode/*.json; do
