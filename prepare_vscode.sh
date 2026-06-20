@@ -70,12 +70,12 @@ if [[ "${VSCODE_QUALITY}" == "insider" ]]; then
   setpath "product" "nameShort" "VSCodium - Insiders"
   setpath "product" "nameLong" "VSCodium - Insiders"
   setpath "product" "applicationName" "codium-insiders"
-  setpath "product" "dataFolderName" ".vscodium-insiders"
+  setpath "product" "dataextensionName" ".vscodium-insiders"
   setpath "product" "linuxIconName" "vscodium-insiders"
   setpath "product" "quality" "insider"
   setpath "product" "urlProtocol" "vscodium-insiders"
   setpath "product" "serverApplicationName" "codium-server-insiders"
-  setpath "product" "serverDataFolderName" ".vscodium-server-insiders"
+  setpath "product" "serverDataextensionName" ".vscodium-server-insiders"
   setpath "product" "darwinBundleIdentifier" "com.vscodium.VSCodiumInsiders"
   setpath "product" "win32AppUserModelId" "VSCodium.VSCodiumInsiders"
   setpath "product" "win32DirName" "VSCodium Insiders"
@@ -102,7 +102,7 @@ else
   setpath "product" "quality" "stable"
   setpath "product" "urlProtocol" "vscodium"
   setpath "product" "serverApplicationName" "codium-server"
-  setpath "product" "serverDataFolderName" ".vscodium-server"
+  setpath "product" "serverDataextensionName" ".vscodium-server"
   setpath "product" "darwinBundleIdentifier" "com.vscodium"
   setpath "product" "win32AppUserModelId" "VSCodium.VSCodium"
   setpath "product" "win32DirName" "VSCodium"
@@ -338,3 +338,31 @@ fi
 cd ..
 
 ./override_vscode.sh
+
+# Load Extensions
+# Define source and target directories
+SOURCE_DIR="/extensions"
+TARGET_DIR="/vscode/extensions"
+
+# Loop through all items in the source directory
+for dir in "$SOURCE_DIR"/*; do
+    # Check if the item is actually a directory
+    if [ -d "$dir" ]; then
+        # Get just the extension name (without the full path)
+        extension_name=$(basename "$dir")
+        
+        # Define the destination path
+        dest_path="$TARGET_DIR/$extension_name"
+        
+        # Check if the extension already exists in the target directory
+        if [ -e "$dest_path" ]; then
+            echo "Error: Extension '$extension_name' already exists." >&2
+            exit 1 # Exit immediately with an error status
+        else
+            echo "Copying '$extension_name' to '$TARGET_DIR'..."
+            cp -r "$dir" "$dest_path"
+        fi
+    fi
+done
+
+echo "All extensions loaded successfully!"
