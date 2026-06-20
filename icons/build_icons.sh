@@ -98,11 +98,9 @@ build_darwin_types() { # {{{
 } # }}}
 
 build_linux_main() { # {{{
-  if [[ ! -f "${SRC_PREFIX}src/${QUALITY}/resources/linux/code.png" ]]; then
-    mkdir -p "${SRC_PREFIX}src/${QUALITY}/resources/linux"
-
-    load_linux_png "${SRC_PREFIX}src/${QUALITY}/resources/linux/code.png"
-  fi
+  # Always generate code.png from codium_cnl.svg
+  mkdir -p "${SRC_PREFIX}src/${QUALITY}/resources/linux"
+  rsvg-convert -w 1024 -h 1024 "icons/${QUALITY}/codium_cnl.svg" -o "${SRC_PREFIX}src/${QUALITY}/resources/linux/code.png"
 
   if [[ ! -f "${SRC_PREFIX}src/${QUALITY}/resources/linux/rpm/code.xpm" ]]; then
     mkdir -p "${SRC_PREFIX}src/${QUALITY}/resources/linux/rpm"
@@ -137,11 +135,22 @@ build_server() { # {{{
 } # }}}
 
 build_windows_main() { # {{{
-  if [[ ! -f "${SRC_PREFIX}src/${QUALITY}/resources/win32/code.ico" ]]; then
-    mkdir -p "${SRC_PREFIX}src/${QUALITY}/resources/win32"
-
-    load_windows_ico "${SRC_PREFIX}src/${QUALITY}/resources/win32/code.ico"
-  fi
+  # Always generate code.ico from SVG
+  mkdir -p "${SRC_PREFIX}src/${QUALITY}/resources/win32"
+  
+  # Generate temporary png layers and consolidate them into a multi-resolution code.ico
+  rsvg-convert -w 256 -h 256 "icons/${QUALITY}/codium_cnl.svg" -o "code_win_256.png"
+  rsvg-convert -w 128 -h 128 "icons/${QUALITY}/codium_cnl.svg" -o "code_win_128.png"
+  rsvg-convert -w 96 -h 96 "icons/${QUALITY}/codium_cnl.svg" -o "code_win_96.png"
+  rsvg-convert -w 64 -h 64 "icons/${QUALITY}/codium_cnl.svg" -o "code_win_64.png"
+  rsvg-convert -w 48 -h 48 "icons/${QUALITY}/codium_cnl.svg" -o "code_win_48.png"
+  rsvg-convert -w 32 -h 32 "icons/${QUALITY}/codium_cnl.svg" -o "code_win_32.png"
+  rsvg-convert -w 24 -h 24 "icons/${QUALITY}/codium_cnl.svg" -o "code_win_24.png"
+  rsvg-convert -w 16 -h 16 "icons/${QUALITY}/codium_cnl.svg" -o "code_win_16.png"
+  
+  icotool -c -o "${SRC_PREFIX}src/${QUALITY}/resources/win32/code.ico" code_win_256.png code_win_128.png code_win_96.png code_win_64.png code_win_48.png code_win_32.png code_win_24.png code_win_16.png
+  
+  rm -f code_win_*.png
 } # }}}
 
 build_windows_type() { # {{{
@@ -153,20 +162,19 @@ build_windows_type() { # {{{
   LOGO_SIZE="$4"
   GRAVITY="$5"
 
-  if [[ ! -f "${FILE_PATH}" ]]; then
-    if [[ "${FILE_PATH##*.}" == "png" ]]; then
-      convert -size "${IMG_SIZE}" "${IMG_BG_COLOR}" PNG32:"${FILE_PATH}"
-    else
-      convert -size "${IMG_SIZE}" "${IMG_BG_COLOR}" "${FILE_PATH}"
-    fi
+  # Always regenerate windows images
+  if [[ "${FILE_PATH##*.}" == "png" ]]; then
+    convert -size "${IMG_SIZE}" "${IMG_BG_COLOR}" PNG32:"${FILE_PATH}"
+  else
+    convert -size "${IMG_SIZE}" "${IMG_BG_COLOR}" "${FILE_PATH}"
+  fi
 
-    rsvg-convert -w "${LOGO_SIZE}" -h "${LOGO_SIZE}" "icons/${QUALITY}/codium_cnl.svg" -o "code_logo.png"
+  rsvg-convert -w "${LOGO_SIZE}" -h "${LOGO_SIZE}" "icons/${QUALITY}/codium_cnl.svg" -o "code_logo.png"
 
-    if [[ "${GRAVITY}" == "center" ]]; then
-      composite -gravity "${GRAVITY}" "code_logo.png" "${FILE_PATH}" "${FILE_PATH}"
-    else
-      composite -gravity NorthWest -geometry "${GRAVITY}" "code_logo.png" "${FILE_PATH}" "${FILE_PATH}"
-    fi
+  if [[ "${GRAVITY}" == "center" ]]; then
+    composite -gravity "${GRAVITY}" "code_logo.png" "${FILE_PATH}" "${FILE_PATH}"
+  else
+    composite -gravity NorthWest -geometry "${GRAVITY}" "code_logo.png" "${FILE_PATH}" "${FILE_PATH}"
   fi
 } # }}}
 
